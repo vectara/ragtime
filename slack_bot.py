@@ -1,0 +1,77 @@
+import logging
+import os
+import traceback
+
+from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
+from slack_sdk import WebClient
+from slack_bolt.async_app import AsyncApp
+
+from db import get_conversation_id, insert_entry, start_db_connection
+from query_vectara import VectaraQuery
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Event API & Web API
+slack_app = AsyncApp(token=os.getenv("SLACK_BOT_TOKEN"))
+client = WebClient(os.getenv("SLACK_BOT_TOKEN"))
+logging.basicConfig(level=logging.INFO)
+
+conn = start_db_connection()
+
+
+@slack_app.event("app_mention")
+async def handle_mention(body, say):
+    event = body["event"]
+    await reply_to_message(event, say)
+
+
+@slack_app.event("message")
+async def handle_direct_message(body, say):
+    event = body["event"]
+    if event["channel_type"] == "im":
+        await reply_to_message(event, say)
+
+
+async def reply_to_message(event, say):
+    convo_id = None
+    try:
+        try:
+            prompt = event["text"].split(">")[1]
+        except IndexError:
+            prompt = event["text"]
+        thread_ts = event.get("thread_ts", None)
+        if thread_ts:
+            res = client.conversations_replies(channel=event["channel"], ts=thread_ts)
+            parent_message_ts = res["messages"][0]["ts"]
+            convo_id = get_conversation_id(conn, parent_message_ts)
+            logging.info(f"Received conversation id from DB: {convo_id}")
+
+        vectara = VectaraQuery(
+            customer_id=os.getenv("CUSTOMER_ID"),
+            corpus_ids=[os.getenv("CORPUS_IDS")],
+            api_key=os.getenv("API_KEY"),
+            prompt_name="vectara-experimental-summary-ext-2023-12-11-large",
+            conv_id=convo_id,
+            bot_type="slack"
+        )
+        vectara_convo_id, response = vectara.submit_query(prompt)
+        user = event["user"]
+        reply_content = f"<@{user}> {response}" if event["channel_type"] != "im" else response
+
+        response = await say(reply_content, thread_ts=thread_ts, unfurl_links=False, unfurl_media=False)
+        ts = response["ts"]
+        if thread_ts is None:
+            insert_entry(conn, ts, vectara_convo_id)
+
+    except Exception as e:
+        logging.error(
+            f"Error  {e}, traceback={traceback.format_exc()}"
+        )
+        reply_content = "Something went wrong. Please, try again."
+        say(reply_content)
+
+
+async def start_slack_bot():
+    handler = AsyncSocketModeHandler(slack_app, os.getenv("SLACK_APP_TOKEN"))
+    await handler.start_async()
