@@ -1,6 +1,7 @@
 # Ragtime
 
-An open-source rag bot for slack and discord using Vectara.
+An open-source RAG bot for slack and discord using Vectara.
+With this bot you can create a slack or Discord bot that is connected to your server and answers user questions by querying a Vectara corpus.
 
 ## Usage
 
@@ -29,7 +30,7 @@ An open-source rag bot for slack and discord using Vectara.
    ```bash
     pip3 install requirement.txt
    
-3. **Create .env file and copy the env variables name from the .env.example and replace with credentials.**
+3. **Create an `.env` file and copy the env variables name from the .env.example and replace with credentials.**
 
 
 4. **Create Slack bot app in the slack by using the following steps.**
