@@ -22,8 +22,8 @@ An open-source rag bot for slack and discord using Vectara.
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/vectara/ragbot.git
-   cd ragbot
+   git clone https://github.com/vectara/ragtime.git
+   cd ragtime
    
 2. **Install the required dependencies:**
    ```bash
