@@ -1,4 +1,4 @@
-# Ragbot
+# Ragtime
 
 An open-source RAG bot for slack and discord using Vectara.
 With this bot you can create a slack or Discord bot that is connected to your server and answers user questions by querying a Vectara corpus.
