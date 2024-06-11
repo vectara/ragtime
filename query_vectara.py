@@ -5,6 +5,9 @@ from urllib.parse import quote
 
 
 def extract_between_tags(text, start_tag, end_tag):
+    '''
+    Extracts text between two tags in a string.
+    '''
     start_index = text.find(start_tag)
     end_index = text.find(end_tag, start_index)
     return text[start_index + len(start_tag):end_index - len(end_tag)]
@@ -16,17 +19,17 @@ class VectaraQuery:
         self.customer_id = customer_id
         self.corpus_ids = corpus_ids
         self.api_key = api_key
-        self.prompt_name = prompt_name if prompt_name else "vectara-summary-ext-v1.2.0"
+        self.prompt_name = prompt_name if prompt_name else "vectara-summary-ext-24-05-sml"
         self.conv_id = conv_id
         self.bot_type = bot_type
 
     def submit_query(self, query_str: str):
         corpora_key_list = [{
-            'customer_id': self.customer_id, 'corpus_id': corpus_id, 'lexical_interpolation_config': {'lambda': 0.025}
+            'customer_id': self.customer_id, 'corpus_id': corpus_id, 'lexical_interpolation_config': {'lambda': 0.005}
         } for corpus_id in self.corpus_ids
         ]
 
-        endpoint = f"https://api.vectara.io/v1/query"
+        endpoint = "https://api.vectara.io/v1/query"
         start_tag = "%START_SNIPPET%"
         end_tag = "%END_SNIPPET%"
         headers = {
@@ -34,7 +37,8 @@ class VectaraQuery:
             "Accept": "application/json",
             "customer-id": self.customer_id,
             "x-api-key": self.api_key,
-            "grpc-timeout": "60S"
+            "grpc-timeout": "60S",
+            "X-Source": "ragtime"
         }
         body = {
             'query': [
@@ -85,7 +89,7 @@ class VectaraQuery:
         docs = res['responseSet'][0]['document']
         chat = res['responseSet'][0]['summary'][0]['chat']
 
-        if chat['status'] != None:
+        if chat['status'] is not None:
             st_code = chat['status']
             print(f"Chat query failed with code {st_code}")
             if st_code == 'RESOURCE_EXHAUSTED':
