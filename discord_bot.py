@@ -12,6 +12,8 @@ discord_bot = commands.Bot(command_prefix='!', intents=intents)
 logging.basicConfig(level=logging.INFO)
 conn = start_db_connection()
 
+# If you are not on the scale plan, use 'vectara-summary-ext-24-05-sml'
+vectara_prompt = 'vectara-summary-ext-24-05-med-omni'
 
 def split_message(content, max_length=1950):
     """
@@ -44,9 +46,11 @@ def split_message(content, max_length=1950):
 async def on_ready():
     logging.info(f'Logged in as {discord_bot.user} (ID: {discord_bot.user.id})')
 
-
 @discord_bot.event
 async def on_message(message):
+    '''
+    This function is triggered when the bot receives a message.
+    '''
     if message.author == discord_bot.user:
         return
 
@@ -65,10 +69,10 @@ async def on_message(message):
                 logging.info(f"Received conversation id from DB: {convo_id}")
 
             vectara = VectaraQuery(
-                customer_id=os.getenv("CUSTOMER_ID"),
-                corpus_ids=[os.getenv("CORPUS_IDS")],
-                api_key=os.getenv("API_KEY"),
-                prompt_name="vectara-experimental-summary-ext-2023-12-11-large",
+                customer_id=os.getenv("VECTARA_CUSTOMER_ID"),
+                corpus_ids=os.getenv("VECTARA_CORPUS_IDS").split(','),
+                api_key=os.getenv("VECTARA_API_KEY"),
+                prompt_name=vectara_prompt,
                 conv_id=convo_id
             )
             vectara_convo_id, response = vectara.submit_query(message_content)

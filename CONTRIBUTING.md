@@ -1,6 +1,6 @@
-# Contributing to ragbot
+# Contributing to ragtime
 
-Thank you for your interest in ragbot and considering contributing to our project!
+Thank you for your interest in ragtime and considering contributing to our project!
 Whether it's a bugfix or anything else - we truly appreciate your time and effort.
 
 This document provides guidelines and best practices to help you contribute effectively.
