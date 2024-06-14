@@ -38,7 +38,7 @@ async def handle_direct_message(body, say):
     This function is triggered when the bot receives a direct message.
     '''
     event = body["event"]
-    if event["channel_type"] == "im":
+    if event.get("channel_type") == "im":
         await reply_to_message(event, say)
 
 
@@ -70,7 +70,7 @@ async def reply_to_message(event, say):
         )
         vectara_convo_id, response = vectara.submit_query(prompt)
         user = event["user"]
-        reply_content = f"<@{user}> {response}" if event["channel_type"] != "im" else response
+        reply_content = f"<@{user}> {response}" if event.get("channel_type") != "im" else response
 
         response = await say(reply_content, thread_ts=thread_ts, unfurl_links=False, unfurl_media=False)
         ts = response["ts"]
