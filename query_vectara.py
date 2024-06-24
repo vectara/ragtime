@@ -55,10 +55,8 @@ class VectaraQuery:
                     },
                     'rerankingConfig':
                         {
-                            'rerankerId': 272725718,
-                            'mmrConfig': {
-                                'diversityBias': 0.3
-                            }
+                            'rerankerId': 272725719,  # If you are not on the scale plan, use
+                            # '272725718'
                         },
                     'summary': [
                         {

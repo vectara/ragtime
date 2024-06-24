@@ -25,28 +25,28 @@ vectara_prompt = 'vectara-summary-ext-24-05-med-omni'
 
 @slack_app.event("app_mention")
 async def handle_mention(body, say):
-    '''
+    """
     This function is triggered when the bot is mentioned in a channel.
-    '''
+    """
     event = body["event"]
     await reply_to_message(event, say)
 
 
 @slack_app.event("message")
 async def handle_direct_message(body, say):
-    '''
+    """
     This function is triggered when the bot receives a direct message.
-    '''
+    """
     event = body["event"]
     if event.get("channel_type") == "im":
         await reply_to_message(event, say)
 
 
 async def reply_to_message(event, say):
-    '''
+    """
     This function replies to the message received by the bot.
     The response is based on a Vectara Query that uses the message as a prompt.
-    '''
+    """
     convo_id = None
     try:
         try:
