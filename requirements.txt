@@ -2,5 +2,4 @@ slack_bolt==1.18.1
 urllib3==2.2.1
 python-dotenv==1.0.1
 requests==2.31.0
-db-sqlite3==0.0.1
 discord.py==2.3.2

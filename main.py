@@ -9,12 +9,12 @@ load_dotenv()
 
 
 async def main(run_bot):
-    if run_bot.lower() == "slack":
+    if run_bot is None:
+        await asyncio.gather(start_slack_bot(), start_discord_bot())
+    elif run_bot.lower() == "slack":
         await start_slack_bot()
     elif run_bot.lower() == "discord":
         await start_discord_bot()
-    elif run_bot is None:
-        await asyncio.gather(start_slack_bot(), start_discord_bot())
     else:
         raise ValueError("Invalid argument. Use 'slack', 'discord', or don't pass any argument to run both bots.")
 
