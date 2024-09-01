@@ -18,6 +18,7 @@ async def main(run_bot):
     else:
         raise ValueError("Invalid argument. Use 'slack', 'discord', or don't pass any argument to run both bots.")
 
+
 if __name__ == "__main__":
     run_bot = sys.argv[1] if len(sys.argv) > 1 else None
     asyncio.run(main(run_bot))
