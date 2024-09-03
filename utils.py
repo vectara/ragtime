@@ -11,9 +11,9 @@ def query_vectara(query, conv_id, vectara_prompt, bot_type):
             vectara_customer_id=os.getenv("VECTARA_CUSTOMER_ID"),
             vectara_corpus_id=os.getenv("VECTARA_CORPUS_IDS"),
             vectara_api_key=os.getenv("VECTARA_API_KEY"),
-            data_description="Vectara website, docs and forum data ",
-            assistant_specialty="Vectara ",
-            tool_name="ask_vectara",
+            data_description=os.getenv("AGENTIC_RAG_DATA_DESCRIPTION"),
+            assistant_specialty=os.getenv("AGENTIC_RAG_ASSISTANT_SPECIALTY"),
+            tool_name=os.getenv("AGENTIC_RAG_TOOL_NAME"),
         )
         response = agent.chat(query)
         return None, response
@@ -26,5 +26,5 @@ def query_vectara(query, conv_id, vectara_prompt, bot_type):
             conv_id=conv_id,
             bot_type=bot_type
         )
-        vectara_convo_id, response = vectara.submit_query(query)
-        return vectara_convo_id, response
+        vectara_conv_id, response = vectara.submit_query(query)
+        return vectara_conv_id, response
