@@ -42,7 +42,7 @@ With this bot you can create a Slack or Discord bot that is connected to your se
    ENABLE_AGENTIC_RAG=True ## To enable agentic rag. By default ragtime uses vanilla RAG.
    AGENTIC_RAG_DATA_DESCRIPTION=Vectara website, docs and forum data
    ```
-
+   - For more details about [agentic rag](https://github.com/vectara/py-vectara-agentic).
    - The `VECTARA_CUSTOMER_ID` and `VECTARA_CORPUS_IDS` point to your Vectara account and relevant corpora to use. 
    - `VECTARA_CORPUS_IDS` can be a single corpus ID (numeric) or a comma-separated list of corpora.
    
