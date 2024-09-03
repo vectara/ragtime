@@ -60,17 +60,17 @@ async def on_message(message):
     if discord_bot.user.mentioned_in(message) or is_direct_message:
         message_content = message.content.replace(f'<@{discord_bot.user.id}>', '').strip()
         if message_content:
-            convo_id = None
+            conv_id = None
             if isinstance(message.channel, discord.Thread):
                 parent_message_id = message.channel.id
-                convo_id = get_conversation_id(conn, parent_message_id) if parent_message_id else None
-                logging.info(f"Received conversation id from DB: {convo_id}")
+                conv_id = get_conversation_id(conn, parent_message_id) if parent_message_id else None
+                logging.info(f"Received conversation id from DB: {conv_id}")
             elif message.reference:
                 original_message_id = str(message.reference.message_id)
-                convo_id = get_conversation_id(conn, original_message_id) if original_message_id else None
-                logging.info(f"Received conversation id from DB: {convo_id}")
+                conv_id = get_conversation_id(conn, original_message_id) if original_message_id else None
+                logging.info(f"Received conversation id from DB: {conv_id}")
 
-            vectara_convo_id, response = query_vectara(message_content, convo_id, vectara_prompt, bot_type="discord")
+            vectara_conv_id, response = query_vectara(message_content, conv_id, vectara_prompt, bot_type="discord")
             split_messages = split_message(response)
             bot_reply = None
             if len(split_messages) == 1:
@@ -84,10 +84,10 @@ async def on_message(message):
                     else:
                         bot_reply = await message.channel.send(f'{part}')
 
-            if bot_reply and vectara_convo_id is not None:
+            if bot_reply and vectara_conv_id is not None:
                 reply_message_id = str(bot_reply.id)
                 if not isinstance(message.channel, discord.Thread):
-                    insert_entry(conn, reply_message_id, vectara_convo_id)
+                    insert_entry(conn, reply_message_id, vectara_conv_id)
 
             await discord_bot.process_commands(message)
 

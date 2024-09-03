@@ -48,7 +48,7 @@ async def reply_to_message(event, say):
     This function replies to the message received by the bot.
     The response is based on a Vectara Query that uses the message as a prompt.
     """
-    convo_id = None
+    conv_id = None
     try:
         try:
             prompt = event["text"].split(">")[1].strip()
@@ -59,17 +59,17 @@ async def reply_to_message(event, say):
         if thread_ts:
             res = client.conversations_replies(channel=event["channel"], ts=thread_ts)
             parent_message_ts = res["messages"][0]["ts"]
-            convo_id = get_conversation_id(conn, parent_message_ts)
-            logging.info(f"Received conversation id from DB: {convo_id}")
+            conv_id = get_conversation_id(conn, parent_message_ts)
+            logging.info(f"Received conversation id from DB: {conv_id}")
 
-        vectara_convo_id, response = query_vectara(prompt, convo_id, vectara_prompt, bot_type="slack")
+        vectara_conv_id, response = query_vectara(prompt, conv_id, vectara_prompt, bot_type="slack")
         user = event["user"]
         reply_content = f"<@{user}> {response}" if event.get("channel_type") != "im" else response
 
         response = await say(reply_content, thread_ts=thread_ts, unfurl_links=False, unfurl_media=False)
         ts = response["ts"]
         if thread_ts is None:
-            insert_entry(conn, ts, vectara_convo_id)
+            insert_entry(conn, ts, vectara_conv_id)
 
     except Exception as e:
         logging.error(
