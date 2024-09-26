@@ -14,16 +14,16 @@ def convert_to_slack_link(match):
     """
     Function to replace each match with Slack-style hyperlink
     """
-    display_text = match.group(1)  # The text inside the square brackets
-    url = match.group(2)  # The URL inside the parentheses
+    display_text = match.group(1).strip()  # The text inside the square brackets
+    url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Slack hyperlink format
     return f"<{url}|{display_text}>"
 
 
 # Function to convert to Discord hyperlink format
 def convert_to_discord_link(match):
-    display_text = match.group(1)  # The text inside the square brackets
-    url = match.group(2)  # The URL inside the parentheses
+    display_text = match.group(1).strip()  # The text inside the square brackets
+    url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Discord hyperlink format
     return f'[{display_text}](<{url}>)'
 
@@ -35,6 +35,11 @@ def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
             agent = redis_client.get(reference_id)
             agent = Agent.loads(agent)
             response = agent.chat(query)
+            logging.info(response)
+            if bot_type == "slack":
+                response = re.sub(pattern, convert_to_slack_link, response)
+            else:
+                response = re.sub(pattern, convert_to_discord_link, response)
             return None, response, None
         else:
             agent = Agent.from_corpus(
@@ -45,7 +50,13 @@ def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
                 assistant_specialty=os.getenv("AGENTIC_RAG_ASSISTANT_SPECIALTY"),
                 tool_name=os.getenv("AGENTIC_RAG_TOOL_NAME"),
             )
+
             response = agent.chat(query)
+            logging.info(response)
+            if bot_type == "slack":
+                response = re.sub(pattern, convert_to_slack_link, response)
+            else:
+                response = re.sub(pattern, convert_to_discord_link, response)
             return None, response, agent.dumps()
     else:
         vectara = VectaraQuery(
