@@ -1,8 +1,9 @@
+import logging
 import os
 import re
 
 from vectara_agentic.agent import Agent
-
+from redis_client import redis_client
 from query_vectara import VectaraQuery
 
 # Regular expression to find and replace Markdown-style links
@@ -27,23 +28,25 @@ def convert_to_discord_link(match):
     return f'[{display_text}](<{url}>)'
 
 
-def query_vectara(query, conv_id, vectara_prompt, bot_type):
+def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
     if os.getenv("ENABLE_AGENTIC_RAG", default=False):
-        agent = Agent.from_corpus(
-            vectara_customer_id=os.getenv("VECTARA_CUSTOMER_ID"),
-            vectara_corpus_id=os.getenv("VECTARA_CORPUS_IDS"),
-            vectara_api_key=os.getenv("VECTARA_API_KEY"),
-            data_description=os.getenv("AGENTIC_RAG_DATA_DESCRIPTION"),
-            assistant_specialty=os.getenv("AGENTIC_RAG_ASSISTANT_SPECIALTY"),
-            tool_name=os.getenv("AGENTIC_RAG_TOOL_NAME"),
-        )
-        response = agent.chat(query)
-        if bot_type == "slack":
-            response = re.sub(pattern, convert_to_slack_link, response)
+        if reference_id:
+            logging.info("Using the existing agent with reference_id: {}".format(reference_id))
+            agent = redis_client.get(reference_id)
+            agent = Agent.loads(agent)
+            response = agent.chat(query)
+            return None, response, None
         else:
-            response = re.sub(pattern, convert_to_discord_link, response)
-
-        return None, response
+            agent = Agent.from_corpus(
+                vectara_customer_id=os.getenv("VECTARA_CUSTOMER_ID"),
+                vectara_corpus_id=os.getenv("VECTARA_CORPUS_IDS"),
+                vectara_api_key=os.getenv("VECTARA_API_KEY"),
+                data_description=os.getenv("AGENTIC_RAG_DATA_DESCRIPTION"),
+                assistant_specialty=os.getenv("AGENTIC_RAG_ASSISTANT_SPECIALTY"),
+                tool_name=os.getenv("AGENTIC_RAG_TOOL_NAME"),
+            )
+            response = agent.chat(query)
+            return None, response, agent.dumps()
     else:
         vectara = VectaraQuery(
             customer_id=os.getenv("VECTARA_CUSTOMER_ID"),
@@ -54,4 +57,4 @@ def query_vectara(query, conv_id, vectara_prompt, bot_type):
             bot_type=bot_type
         )
         vectara_conv_id, response = vectara.submit_query(query)
-        return vectara_conv_id, response
+        return vectara_conv_id, response, None
