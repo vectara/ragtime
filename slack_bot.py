@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 import traceback
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
@@ -8,8 +9,9 @@ from slack_bolt.async_app import AsyncApp
 
 from db import get_conversation_id, insert_entry, start_db_connection
 from dotenv import load_dotenv
-
 from utils import query_vectara
+from redis_client import redis_client
+
 
 load_dotenv()
 
@@ -62,14 +64,18 @@ async def reply_to_message(event, say):
             conv_id = get_conversation_id(conn, parent_message_ts)
             logging.info(f"Received conversation id from DB: {conv_id}")
 
-        vectara_conv_id, response = query_vectara(prompt, conv_id, vectara_prompt, bot_type="slack")
+        vectara_conv_id, response, agent_instance = query_vectara(prompt, conv_id, vectara_prompt, thread_ts,
+                                                                  bot_type="slack")
         user = event["user"]
         reply_content = f"<@{user}> {response}" if event.get("channel_type") != "im" else response
 
         response = await say(reply_content, thread_ts=thread_ts, unfurl_links=False, unfurl_media=False)
         ts = response["ts"]
-        if thread_ts is None:
+        if thread_ts is None and vectara_conv_id:
             insert_entry(conn, ts, vectara_conv_id)
+
+        if thread_ts is None and agent_instance:
+            redis_client.setex(ts, 30 * 24 * 60 * 60, agent_instance)
 
     except Exception as e:
         logging.error(

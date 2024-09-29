@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 from db import start_db_connection, get_conversation_id, insert_entry
+from redis_client import redis_client
 from utils import query_vectara
 
 intents = discord.Intents.default()
@@ -56,21 +57,24 @@ async def on_message(message):
     if message.author == discord_bot.user:
         return
 
+    reference_id = None
+
     is_direct_message = isinstance(message.channel, discord.DMChannel)
     if discord_bot.user.mentioned_in(message) or is_direct_message:
         message_content = message.content.replace(f'<@{discord_bot.user.id}>', '').strip()
         if message_content:
             conv_id = None
             if isinstance(message.channel, discord.Thread):
-                parent_message_id = message.channel.id
+                reference_id = parent_message_id = message.channel.id
                 conv_id = get_conversation_id(conn, parent_message_id) if parent_message_id else None
                 logging.info(f"Received conversation id from DB: {conv_id}")
             elif message.reference:
-                original_message_id = str(message.reference.message_id)
+                reference_id = original_message_id = str(message.reference.message_id)
                 conv_id = get_conversation_id(conn, original_message_id) if original_message_id else None
                 logging.info(f"Received conversation id from DB: {conv_id}")
 
-            vectara_conv_id, response = query_vectara(message_content, conv_id, vectara_prompt, bot_type="discord")
+            vectara_conv_id, response, agent_instance = query_vectara(message_content, conv_id, vectara_prompt,
+                                                                        reference_id, bot_type="discord")
             split_messages = split_message(response)
             bot_reply = None
             if len(split_messages) == 1:
@@ -88,7 +92,8 @@ async def on_message(message):
                 reply_message_id = str(bot_reply.id)
                 if not isinstance(message.channel, discord.Thread):
                     insert_entry(conn, reply_message_id, vectara_conv_id)
-
+            if bot_reply and agent_instance:
+                redis_client.setex(reference_id, 30 * 24 * 60 * 60, agent_instance)
             await discord_bot.process_commands(message)
 
 
