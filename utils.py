@@ -17,7 +17,7 @@ def convert_to_slack_link(match):
     display_text = match.group(1).strip()  # The text inside the square brackets
     url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Slack hyperlink format
-    return f"<{url}|{display_text}>"
+    return f"<{url}|[{display_text}]>"
 
 
 # Function to convert to Discord hyperlink format
@@ -25,7 +25,7 @@ def convert_to_discord_link(match):
     display_text = match.group(1).strip()  # The text inside the square brackets
     url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Discord hyperlink format
-    return f'[{display_text}](<{url}>)'
+    return f'[[{display_text}]](<{url}>)'
 
 
 def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
