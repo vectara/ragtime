@@ -4,4 +4,5 @@ python-dotenv==1.0.1
 requests==2.31.0
 discord.py==2.3.2
 vectara-agentic==0.1.10
-redis
+redis==5.1.0
+twilio==9.3.2
