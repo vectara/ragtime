@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from discord_bot import start_discord_bot
 from slack_bot import start_slack_bot
+from whatsapp_bot import start_whatsapp_bot
 
 load_dotenv()
 
@@ -15,6 +16,8 @@ async def main(run_bot):
         await start_slack_bot()
     elif run_bot.lower() == "discord":
         await start_discord_bot()
+    elif run_bot.lower() == "whatsapp":
+        await start_whatsapp_bot()
     else:
         raise ValueError("Invalid argument. Use 'slack', 'discord', or don't pass any argument to run both bots.")
 

@@ -115,6 +115,7 @@ class VectaraQuery:
 
         # replace references with markdown links
         refs_dict = {url: (inx + 1) for inx, url in enumerate(refs)}
+        urls = []
 
         for match in reversed(matches):
             start, end = match
@@ -126,7 +127,16 @@ class VectaraQuery:
             citation_inx = refs_dict[url]
             if self.bot_type == "slack":
                 summary = summary[:start] + f'[<{url}|{citation_inx}>]' + summary[end:]
+            elif self.bot_type == "whatsapp":
+                urls.append(url)
+                summary = summary[:start] + f'[{citation_inx}]' + summary[end:]
             else:
                 summary = summary[:start] + f'[[{citation_inx}]](<{url}>)' + summary[end:]
-
+        if urls:
+            from utils import shorten_url_tinyurl
+            summary += "\n\n" + "References\n"
+            ref_index = 1
+            for url in urls:
+                summary += f"{ref_index}. {shorten_url_tinyurl(url)}\n"
+                ref_index += 1
         return conversation_id, summary

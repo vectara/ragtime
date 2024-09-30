@@ -2,6 +2,7 @@ import logging
 import os
 import re
 
+import requests
 from vectara_agentic.agent import Agent
 from redis_client import redis_client
 from query_vectara import VectaraQuery
@@ -26,6 +27,16 @@ def convert_to_discord_link(match):
     url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Discord hyperlink format
     return f'[[{display_text}]](<{url}>)'
+
+
+def shorten_url_tinyurl(long_url):
+    api_url = f'http://tinyurl.com/api-create.php?url={long_url}'
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        return response.text  # This is the shortened URL
+    else:
+        return None  # Handle the error
 
 
 def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
