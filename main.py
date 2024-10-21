@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import os
 import sys
 from dotenv import load_dotenv
 
@@ -11,7 +13,10 @@ load_dotenv()
 
 async def main(run_bot):
     if run_bot is None:
-        await asyncio.gather(start_slack_bot(), start_discord_bot())
+        if os.getenv("TWILIO_WHATSAPP_NUMBER"):
+            await asyncio.gather(start_slack_bot(), start_discord_bot(), start_whatsapp_bot())
+        else:
+            await asyncio.gather(start_slack_bot(), start_discord_bot())
     elif run_bot.lower() == "slack":
         await start_slack_bot()
     elif run_bot.lower() == "discord":

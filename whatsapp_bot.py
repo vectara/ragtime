@@ -7,16 +7,17 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 from utils import query_vectara
 
-account_sid = os.getenv("ACCOUNT_SID")
-auth_token = os.getenv("Auth_TOKEN")
+account_sid = os.getenv("ACCOUNT_SID", None)
+auth_token = os.getenv("Auth_TOKEN", None)
 twilio_whatsapp_number = os.getenv("TWILIO_WHATSAPP_NUMBER")
 
 
 app = Flask(__name__)
 vectara_prompt = 'vectara-summary-ext-24-05-med-omni'
 
-# Initialize Twilio client
-client = Client(account_sid, auth_token)
+if account_sid and auth_token:
+    # Initialize Twilio client
+    client = Client(account_sid, auth_token)
 
 
 # Function to send a WhatsApp message via Twilio
@@ -43,4 +44,4 @@ def whatsapp():
 
 
 async def start_whatsapp_bot():
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

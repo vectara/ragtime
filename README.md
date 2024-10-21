@@ -39,6 +39,9 @@ With this bot you can create a Slack or Discord bot that is connected to your se
    VECTARA_CUSTOMER_ID="<VECTARA_CUSTOMER_ID>"
    VECTARA_CORPUS_IDS="<VECTARA_CORPUS_IDS>"
    VECTARA_API_KEY="<VECTARA_API_KEY>"
+   ACCOUNT_SID=<Twilio account SID>
+   Auth_TOKEN=<Twilio auth token>
+   TWILIO_WHATSAPP_NUMBER=<Whatsapp number configured in twilio>
    ```
    #### To enable [agentic rag](https://github.com/vectara/py-vectara-agentic) add the following variables.
    ```
@@ -52,8 +55,8 @@ With this bot you can create a Slack or Discord bot that is connected to your se
    
 ## Running ragtime bots
 
-RagTime supports [Slack bot](#Steps-to-create-slack-bot) or [Discord bot](#Steps-to-create-discord-bot). 
-You can run one of these, or both. 
+RagTime supports [Slack bot](#Steps-to-create-slack-bot),  [Discord bot](#Steps-to-create-discord-bot) and [Whatsapp bot](). 
+You can run one of these, or all. 
 
 ### How to Run It Locally
 - #### Running both bots
@@ -70,6 +73,11 @@ You can run one of these, or both.
    ```bash
    python3 main.py discord
    ```
+  
+- #### Running only WhatsApp bot
+   ```bash
+   python3 main.py whatsapp
+   ```  
 
 ### Run the application using Docker
 **Build and Run with docker.**
@@ -80,10 +88,14 @@ You can run one of these, or both.
 - #### Running only Slack bot
    ```bash
    bash run_docker.sh slack
-   ```
+   ``` 
  - #### Running only Discord bot
    ```bash
    bash run_docker.sh discord
+   ```
+ - #### Running only Whatsapp bot
+   ```bash
+   bash run_docker.sh whatsapp
    ```   
 
 ## Steps to create Slack bot
@@ -107,6 +119,15 @@ In order to connect your ragtime bot to your Discord server, follow these steps:
 - Choose the ‘bot’ option in the ‘Scope’ box, and the ‘BOT PERMISSIONS’ box will appear below it.
 - Select ‘Read Message’, ‘Send Message’, and ‘Manage Message’ options.
 - Copy the generated URL and paste it into your web browser. It will redirect you to the Discord page to add the bot to your server.
+
+
+## How to setup whatsapp bot using twilio
+In order to connect your ragtime whatsapp bot, follow these steps:
+
+- Sign in to your [twilio console](https://console.twilio.com/).
+- Navigate to the WhatsApp sandbox.
+- Configure the `/whatsapp` endpoint for communication.
+- Copy the Account SID, Auth Token, and WhatsApp Sandbox Number into `.env`
 
 ## Author
 
