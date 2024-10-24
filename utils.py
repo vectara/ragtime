@@ -18,7 +18,7 @@ def convert_to_slack_link(match):
     display_text = match.group(1).strip()  # The text inside the square brackets
     url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Slack hyperlink format
-    return f"<{url}|[{display_text}]>"
+    return f"<{url}|{display_text}>"
 
 
 # Function to convert to Discord hyperlink format
@@ -26,7 +26,7 @@ def convert_to_discord_link(match):
     display_text = match.group(1).strip()  # The text inside the square brackets
     url = match.group(2).strip()  # The URL inside the parentheses
     # Return the Discord hyperlink format
-    return f'[[{display_text}]](<{url}>)'
+    return f'[{display_text}](<{url}>)'
 
 
 def shorten_url_tinyurl(long_url):
@@ -40,7 +40,8 @@ def shorten_url_tinyurl(long_url):
 
 
 def query_vectara(query, conv_id, vectara_prompt, reference_id, bot_type):
-    if os.getenv("ENABLE_AGENTIC_RAG", default=False):
+    agentic_enabled = os.getenv("ENABLE_AGENTIC_RAG", "False").lower() in ("true", "True")
+    if agentic_enabled:
         if reference_id:
             logging.info("Using the existing agent with reference_id: {}".format(reference_id))
             agent = redis_client.get(reference_id)
