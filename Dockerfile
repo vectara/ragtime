@@ -12,7 +12,5 @@ COPY *.py ./
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
 
-EXPOSE 5000
-
 # At runtime, use the .env file
 CMD ["python", "main.py"]
