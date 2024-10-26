@@ -1,6 +1,5 @@
 import logging
 import os
-import pickle
 import traceback
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
